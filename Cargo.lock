@@ -259,7 +259,6 @@ dependencies = [
  "fasthash",
  "num",
  "num-traits",
- "num_cpus",
  "rayon",
 ]
 

@@ -4,7 +4,6 @@ use arrow::{datatypes::Schema, record_batch::RecordBatch};
 
 use config::{IdHashConfig, IdHashConfigBuilder};
 use hash_builder::idhash_batch;
-extern crate num_cpus;
 
 pub mod config;
 pub mod hash_builder;
