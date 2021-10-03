@@ -1,12 +1,10 @@
 use arrow::array::{
-    Array, Float32Array, Float64Array, Int16Array, Int32Array, Int64Array, StringArray,
-    UInt16Array, UInt32Array, UInt64Array,
+    Array, BooleanArray, Date32Array, Date64Array, Float32Array, Float64Array, Int16Array,
+    Int32Array, Int64Array, StringArray, UInt16Array, UInt32Array, UInt64Array,
 };
-use std::{
-    convert::TryFrom,
-    fmt::{self},
-};
+use std::{convert::TryFrom, fmt};
 
+/// Convertible to a Univerally Comparable Vector
 pub trait UNFVector {
     fn raw<'a>(&'a self, characters: usize, digits: u32) -> Box<dyn Iterator<Item = Vec<u8>> + 'a> {
         let unf_digits = self.to_unf(digits);
@@ -101,5 +99,43 @@ integer_unf!(UInt64Array);
 impl UNFVector for StringArray {
     fn to_unf<'a>(&'a self, _digits: u32) -> Box<dyn Iterator<Item = String> + 'a> {
         Box::new((0..self.len()).map(move |x| self.value(x).to_string()))
+    }
+}
+
+// TODO: Add Checks for NULLs
+
+impl UNFVector for BooleanArray {
+    fn to_unf<'a>(&'a self, _digits: u32) -> Box<dyn Iterator<Item = String> + 'a> {
+        Box::new((0..self.len()).map(move |x| {
+            if self.value(x) {
+                "1".to_string()
+            } else {
+                "0".to_string()
+            }
+        }))
+    }
+}
+
+impl UNFVector for Date64Array {
+    fn to_unf<'a>(&'a self, _digits: u32) -> Box<dyn Iterator<Item = String> + 'a> {
+        Box::new((0..self.len()).map(move |x| {
+            if self.is_null(x) {
+                "null".to_string()
+            } else {
+                self.value(x).to_string()
+            }
+        }))
+    }
+}
+
+impl UNFVector for Date32Array {
+    fn to_unf<'a>(&'a self, _digits: u32) -> Box<dyn Iterator<Item = String> + 'a> {
+        Box::new((0..self.len()).map(move |x| {
+            if self.is_null(x) {
+                "null".to_string()
+            } else {
+                self.value(x).to_string()
+            }
+        }))
     }
 }

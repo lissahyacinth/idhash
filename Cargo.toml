@@ -1,8 +1,8 @@
 [package]
 name = "idhash"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2018"
-license = "GPL-2.0-or-later"
+license = "MIT"
 authors = [
     "Lissa Hyacinth <lissahyacinth@gmail.com>"
 ]

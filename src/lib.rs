@@ -53,4 +53,10 @@ mod tests {
         let file_path_2 = "data/ExampleDataSorted.csv";
         assert_eq!(read_return_hash(file_path), read_return_hash(file_path_2))
     }
+
+    #[test]
+    fn load_date_data_from_file() {
+        let file_path = "data/ExampleDateData.csv";
+        read_return_hash(file_path);
+    }
 }

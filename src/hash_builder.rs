@@ -4,8 +4,8 @@ use std::sync::Arc;
 use crate::{config::IdHashConfig, unf_vector::UNFVector};
 use arrow::{
     array::{
-        Float32Array, Float64Array, Int32Array, Int64Array, StringArray, UInt16Array, UInt32Array,
-        UInt64Array,
+        BooleanArray, Date32Array, Date64Array, Float32Array, Float64Array, Int32Array, Int64Array,
+        StringArray, UInt16Array, UInt32Array, UInt64Array,
     },
     datatypes::Schema,
     record_batch::RecordBatch,
@@ -32,7 +32,10 @@ fn convert_col_to_raw<'a>(
 ) -> Box<dyn Iterator<Item = Vec<u8>> + 'a> {
     match schema.field(column_index).data_type() {
         arrow::datatypes::DataType::Null => todo!(),
-        arrow::datatypes::DataType::Boolean => todo!(),
+        arrow::datatypes::DataType::Boolean => col
+            .downcast_ref::<BooleanArray>()
+            .expect("Failed to downcast to Bool")
+            .raw(config.characters, config.digits),
         arrow::datatypes::DataType::Int8 => col
             .downcast_ref::<Int32Array>()
             .expect("Failed to Downcast")
@@ -78,8 +81,14 @@ fn convert_col_to_raw<'a>(
             .expect("Failed to Downcast")
             .raw(config.characters, config.digits),
         arrow::datatypes::DataType::Timestamp(_, _) => todo!(),
-        arrow::datatypes::DataType::Date32 => todo!(),
-        arrow::datatypes::DataType::Date64 => todo!(),
+        arrow::datatypes::DataType::Date32 => col
+            .downcast_ref::<Date32Array>()
+            .expect("Failed to downcast to Date32")
+            .raw(config.characters, config.digits),
+        arrow::datatypes::DataType::Date64 => col
+            .downcast_ref::<Date64Array>()
+            .expect("Failed to downcast to Date64")
+            .raw(config.characters, config.digits),
         arrow::datatypes::DataType::Time32(_) => todo!(),
         arrow::datatypes::DataType::Time64(_) => todo!(),
         arrow::datatypes::DataType::Duration(_) => todo!(),
