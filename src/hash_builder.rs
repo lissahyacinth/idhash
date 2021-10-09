@@ -5,11 +5,14 @@ use crate::{config::IdHashConfig, unf_vector::UNFVector};
 use arrow::{
     array::{
         BooleanArray, Date32Array, Date64Array, Float32Array, Float64Array, Int32Array, Int64Array,
-        StringArray, UInt16Array, UInt32Array, UInt64Array,
+        StringArray, TimestampMicrosecondArray, TimestampMillisecondArray,
+        TimestampNanosecondArray, TimestampSecondArray, UInt16Array, UInt32Array, UInt64Array,
     },
     datatypes::Schema,
     record_batch::RecordBatch,
 };
+
+use arrow::datatypes::TimeUnit;
 
 struct HashIterator<T>(Vec<T>);
 
@@ -79,6 +82,22 @@ fn convert_col_to_raw<'a>(
         arrow::datatypes::DataType::Float64 => col
             .downcast_ref::<Float64Array>()
             .expect("Failed to Downcast")
+            .raw(config.characters, config.digits),
+        arrow::datatypes::DataType::Timestamp(TimeUnit::Second, None) => col
+            .downcast_ref::<TimestampSecondArray>()
+            .expect("Failed to downcast S Timeunit")
+            .raw(config.characters, config.digits),
+        arrow::datatypes::DataType::Timestamp(TimeUnit::Nanosecond, None) => col
+            .downcast_ref::<TimestampNanosecondArray>()
+            .expect("Failed to downcast NS Timeunit")
+            .raw(config.characters, config.digits),
+        arrow::datatypes::DataType::Timestamp(TimeUnit::Millisecond, None) => col
+            .downcast_ref::<TimestampMillisecondArray>()
+            .expect("Failed to downcast Millisecond Unit")
+            .raw(config.characters, config.digits),
+        arrow::datatypes::DataType::Timestamp(TimeUnit::Microsecond, None) => col
+            .downcast_ref::<TimestampMicrosecondArray>()
+            .expect("Failed to downcast Microsecond Unit")
             .raw(config.characters, config.digits),
         arrow::datatypes::DataType::Timestamp(_, _) => todo!(),
         arrow::datatypes::DataType::Date32 => col

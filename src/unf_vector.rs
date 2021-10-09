@@ -1,6 +1,7 @@
 use arrow::array::{
     Array, BooleanArray, Date32Array, Date64Array, Float32Array, Float64Array, Int16Array,
-    Int32Array, Int64Array, StringArray, UInt16Array, UInt32Array, UInt64Array,
+    Int32Array, Int64Array, StringArray, TimestampMicrosecondArray, TimestampMillisecondArray,
+    TimestampNanosecondArray, TimestampSecondArray, UInt16Array, UInt32Array, UInt64Array,
 };
 use std::{convert::TryFrom, fmt};
 
@@ -95,6 +96,21 @@ integer_unf!(Int64Array);
 integer_unf!(UInt16Array);
 integer_unf!(UInt32Array);
 integer_unf!(UInt64Array);
+
+macro_rules! timestamp_unf {
+    ($array_type: ident) => {
+        impl UNFVector for $array_type {
+            fn to_unf<'a>(&'a self, _digits: u32) -> Box<dyn Iterator<Item = String> + 'a> {
+                Box::new(self.values().iter().map(exp_form))
+            }
+        }
+    };
+}
+
+timestamp_unf!(TimestampNanosecondArray);
+timestamp_unf!(TimestampMicrosecondArray);
+timestamp_unf!(TimestampSecondArray);
+timestamp_unf!(TimestampMillisecondArray);
 
 impl UNFVector for StringArray {
     fn to_unf<'a>(&'a self, _digits: u32) -> Box<dyn Iterator<Item = String> + 'a> {
