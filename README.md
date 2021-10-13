@@ -32,7 +32,7 @@ In practice, this is relatively unlikely, and for the core purpose of datasets w
 Each column has specific pre-processing according to the UNF definition. This mostly consists of ensuring that floating point values and timestamps (currently unsupported in IDHash) are representable consistently across datasets when taking into account floating point epsilon. 
 
 ## Hash Generation
-Each row is taken as a single bytestream, and hashed using Murmurhash128. Murmurhash is a non-cryptographically secure hash function that produces a well distributed hash for each individual value. By XORing the individual hashed primitives, a final hash can be produced for the final dataset that does not take into account duplicates.  
+Each row is taken as a single bytestream, and hashed using Murmurhash128. Murmurhash is a non-cryptographically secure hash function that produces a well distributed hash for each individual value. By summing the individual hashed primitives, a final hash can be produced for the final dataset that does not take into account duplicates.  
 
 ## Checking for Equality + Delta
 As the hashed rows are XORed against each other to produce the final value, it is also possible to remove rows against the final hash by producing a row hash in the same manner as was originally performed. 
