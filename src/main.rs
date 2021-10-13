@@ -2,7 +2,7 @@ use clap::{App, Arg};
 
 use idhash::calculate_idhash;
 use idhash::config::IdHashConfigBuilder;
-use idhash::utils::read_csv_data;
+use idhash::utils::CSVReader;
 
 fn main() {
     let matches = App::new("IdHash")
@@ -60,8 +60,8 @@ fn main() {
         .digits(digits.parse().unwrap())
         .characters(characters.parse().unwrap())
         .build();
-    let csv = read_csv_data(file_path.to_string(), inference_rows, batch_size);
-    let csv_schema = csv.schema();
-    let res = calculate_idhash(csv.flatten(), csv_schema, config);
+    let csv = CSVReader::new(file_path.to_string(), inference_rows, batch_size);
+    let csv_schema = csv.schema.clone();
+    let res = calculate_idhash(csv.into_iter(), csv_schema, config);
     println!("File: {} | ShortHash: {}", file_path, res);
 }

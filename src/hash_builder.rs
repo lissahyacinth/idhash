@@ -4,9 +4,8 @@ use std::sync::Arc;
 use crate::{config::IdHashConfig, unf_vector::UNFVector};
 use arrow::{
     array::{
-        BooleanArray, Date32Array, Date64Array, Float32Array, Float64Array, Int32Array, Int64Array,
-        StringArray, TimestampMicrosecondArray, TimestampMillisecondArray,
-        TimestampNanosecondArray, TimestampSecondArray, UInt16Array, UInt32Array, UInt64Array,
+        BooleanArray, Float32Array, Float64Array, Int32Array, Int64Array, UInt16Array, UInt32Array,
+        UInt64Array,
     },
     datatypes::Schema,
     record_batch::RecordBatch,
@@ -83,30 +82,12 @@ fn convert_col_to_raw<'a>(
             .downcast_ref::<Float64Array>()
             .expect("Failed to Downcast")
             .raw(config.characters, config.digits),
-        arrow::datatypes::DataType::Timestamp(TimeUnit::Second, None) => col
-            .downcast_ref::<TimestampSecondArray>()
-            .expect("Failed to downcast S Timeunit")
-            .raw(config.characters, config.digits),
-        arrow::datatypes::DataType::Timestamp(TimeUnit::Nanosecond, None) => col
-            .downcast_ref::<TimestampNanosecondArray>()
-            .expect("Failed to downcast NS Timeunit")
-            .raw(config.characters, config.digits),
-        arrow::datatypes::DataType::Timestamp(TimeUnit::Millisecond, None) => col
-            .downcast_ref::<TimestampMillisecondArray>()
-            .expect("Failed to downcast Millisecond Unit")
-            .raw(config.characters, config.digits),
-        arrow::datatypes::DataType::Timestamp(TimeUnit::Microsecond, None) => col
-            .downcast_ref::<TimestampMicrosecondArray>()
-            .expect("Failed to downcast Microsecond Unit")
-            .raw(config.characters, config.digits),
-        arrow::datatypes::DataType::Timestamp(_, _) => todo!(),
-        arrow::datatypes::DataType::Date32 => col
-            .downcast_ref::<Date32Array>()
-            .expect("Failed to downcast to Date32")
-            .raw(config.characters, config.digits),
-        arrow::datatypes::DataType::Date64 => col
-            .downcast_ref::<Date64Array>()
-            .expect("Failed to downcast to Date64")
+        arrow::datatypes::DataType::Timestamp(TimeUnit::Microsecond, _)
+        | arrow::datatypes::DataType::Timestamp(TimeUnit::Millisecond, _)
+        | arrow::datatypes::DataType::Timestamp(TimeUnit::Nanosecond, _)
+        | arrow::datatypes::DataType::Timestamp(TimeUnit::Second, _) => col
+            .downcast_ref::<Int64Array>()
+            .expect("Failed to Downcast to Int64Array")
             .raw(config.characters, config.digits),
         arrow::datatypes::DataType::Time32(_) => todo!(),
         arrow::datatypes::DataType::Time64(_) => todo!(),
@@ -115,21 +96,25 @@ fn convert_col_to_raw<'a>(
         arrow::datatypes::DataType::Binary => todo!(),
         arrow::datatypes::DataType::FixedSizeBinary(_) => todo!(),
         arrow::datatypes::DataType::LargeBinary => todo!(),
-        arrow::datatypes::DataType::Utf8 => col
-            .downcast_ref::<StringArray>()
-            .expect("Failed to downcast Utf8 -> StringArray")
-            .raw(config.characters, config.digits),
-        arrow::datatypes::DataType::LargeUtf8 => col
-            .downcast_ref::<StringArray>()
-            .expect("Failed to downcast Utf8 -> StringArray")
-            .raw(config.characters, config.digits),
         arrow::datatypes::DataType::List(_) => todo!(),
         arrow::datatypes::DataType::FixedSizeList(_, _) => todo!(),
         arrow::datatypes::DataType::LargeList(_) => todo!(),
         arrow::datatypes::DataType::Struct(_) => todo!(),
-        arrow::datatypes::DataType::Union(_) => todo!(),
+        arrow::datatypes::DataType::Union(_, _, _) => todo!(),
         arrow::datatypes::DataType::Dictionary(_, _) => todo!(),
         arrow::datatypes::DataType::Decimal(_, _) => todo!(),
+        arrow::datatypes::DataType::Map(_, _) => todo!(),
+        arrow::datatypes::DataType::Extension(_, _, _) => todo!(),
+        arrow::datatypes::DataType::Date32 => col
+            .downcast_ref::<Int32Array>()
+            .expect("Failed to downcast Date to Int32")
+            .raw(config.characters, config.digits),
+        arrow::datatypes::DataType::Date64 => col
+            .downcast_ref::<Int64Array>()
+            .expect("Failed to downcast Date to Int64")
+            .raw(config.characters, config.digits),
+        arrow::datatypes::DataType::Utf8 => todo!(),
+        arrow::datatypes::DataType::LargeUtf8 => todo!(),
     }
 }
 

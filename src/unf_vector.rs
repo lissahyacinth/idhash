@@ -1,7 +1,6 @@
 use arrow::array::{
-    Array, BooleanArray, Date32Array, Date64Array, Float32Array, Float64Array, Int16Array,
-    Int32Array, Int64Array, StringArray, TimestampMicrosecondArray, TimestampMillisecondArray,
-    TimestampNanosecondArray, TimestampSecondArray, UInt16Array, UInt32Array, UInt64Array,
+    Array, BooleanArray, Float32Array, Float64Array, Int16Array, Int32Array, Int64Array,
+    UInt16Array, UInt32Array, UInt64Array, Utf8Array,
 };
 use std::{convert::TryFrom, fmt};
 
@@ -61,21 +60,25 @@ where
 
 impl UNFVector for Float64Array {
     fn to_unf<'a>(&'a self, digits: u32) -> Box<dyn Iterator<Item = String> + 'a> {
-        Box::new(
-            self.values()
-                .iter()
-                .map(move |x| exp_form(sigfig(*x, digits - 1))),
-        )
+        Box::new((0..self.len()).map(move |x| {
+            if self.is_null(x) {
+                "null".to_string()
+            } else {
+                exp_form(sigfig(self.value(x) as f64, digits - 1))
+            }
+        }))
     }
 }
 
 impl UNFVector for Float32Array {
     fn to_unf<'a>(&'a self, digits: u32) -> Box<dyn Iterator<Item = String> + 'a> {
-        Box::new(
-            self.values()
-                .iter()
-                .map(move |x| exp_form(sigfig(*x as f64, digits - 1))),
-        )
+        Box::new((0..self.len()).map(move |x| {
+            if self.is_null(x) {
+                "null".to_string()
+            } else {
+                exp_form(sigfig(self.value(x) as f64, digits - 1))
+            }
+        }))
     }
 }
 
@@ -83,7 +86,13 @@ macro_rules! integer_unf {
     ($array_type: ident) => {
         impl UNFVector for $array_type {
             fn to_unf<'a>(&'a self, _digits: u32) -> Box<dyn Iterator<Item = String> + 'a> {
-                Box::new(self.values().iter().map(exp_form))
+                Box::new((0..self.len()).map(move |x| {
+                    if self.is_null(x) {
+                        "null".to_string()
+                    } else {
+                        exp_form(x)
+                    }
+                }))
             }
         }
     };
@@ -97,60 +106,41 @@ integer_unf!(UInt16Array);
 integer_unf!(UInt32Array);
 integer_unf!(UInt64Array);
 
-macro_rules! timestamp_unf {
-    ($array_type: ident) => {
-        impl UNFVector for $array_type {
-            fn to_unf<'a>(&'a self, _digits: u32) -> Box<dyn Iterator<Item = String> + 'a> {
-                Box::new(self.values().iter().map(exp_form))
-            }
-        }
-    };
-}
-
-timestamp_unf!(TimestampNanosecondArray);
-timestamp_unf!(TimestampMicrosecondArray);
-timestamp_unf!(TimestampSecondArray);
-timestamp_unf!(TimestampMillisecondArray);
-
-impl UNFVector for StringArray {
+impl UNFVector for Utf8Array<i32> {
     fn to_unf<'a>(&'a self, _digits: u32) -> Box<dyn Iterator<Item = String> + 'a> {
-        Box::new((0..self.len()).map(move |x| self.value(x).to_string()))
+        Box::new((0..self.len()).map(move |x| {
+            if self.is_null(x) {
+                "null".to_string()
+            } else {
+                self.value(x).to_string()
+            }
+        }))
     }
 }
 
-// TODO: Add Checks for NULLs
+impl UNFVector for Utf8Array<i64> {
+    fn to_unf<'a>(&'a self, _digits: u32) -> Box<dyn Iterator<Item = String> + 'a> {
+        Box::new((0..self.len()).map(move |x| {
+            if self.is_null(x) {
+                "null".to_string()
+            } else {
+                self.value(x).to_string()
+            }
+        }))
+    }
+}
 
 impl UNFVector for BooleanArray {
     fn to_unf<'a>(&'a self, _digits: u32) -> Box<dyn Iterator<Item = String> + 'a> {
         Box::new((0..self.len()).map(move |x| {
-            if self.value(x) {
-                "1".to_string()
-            } else {
-                "0".to_string()
-            }
-        }))
-    }
-}
-
-impl UNFVector for Date64Array {
-    fn to_unf<'a>(&'a self, _digits: u32) -> Box<dyn Iterator<Item = String> + 'a> {
-        Box::new((0..self.len()).map(move |x| {
             if self.is_null(x) {
                 "null".to_string()
             } else {
-                self.value(x).to_string()
-            }
-        }))
-    }
-}
-
-impl UNFVector for Date32Array {
-    fn to_unf<'a>(&'a self, _digits: u32) -> Box<dyn Iterator<Item = String> + 'a> {
-        Box::new((0..self.len()).map(move |x| {
-            if self.is_null(x) {
-                "null".to_string()
-            } else {
-                self.value(x).to_string()
+                if self.value(x) {
+                    "1".to_string()
+                } else {
+                    "0".to_string()
+                }
             }
         }))
     }
