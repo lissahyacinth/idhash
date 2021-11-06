@@ -13,8 +13,8 @@ dependencies = [
 
 [[package]]
 name = "arrow2"
-version = "0.6.2"
-source = "git+https://github.com/jorgecarleitao/arrow2#eead22fcff1f7ecad9bf48e83616a6a08f487bd4"
+version = "0.7.0"
+source = "git+https://github.com/jorgecarleitao/arrow2#ed8836fe48d70ec0c8581c5dfa3c4ff03e6a3d9e"
 dependencies = [
  "chrono",
  "csv",
@@ -219,7 +219,7 @@ dependencies = [
 
 [[package]]
 name = "idhash"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "arrow2",
  "clap",

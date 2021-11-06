@@ -62,6 +62,6 @@ fn main() {
         .build();
     let csv = CSVReader::new(file_path.to_string(), inference_rows, batch_size);
     let csv_schema = csv.schema.clone();
-    let res = calculate_idhash(csv.into_iter(), csv_schema, config);
+    let res = calculate_idhash(csv, csv_schema, config);
     println!("File: {} | ShortHash: {}", file_path, res);
 }

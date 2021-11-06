@@ -90,7 +90,7 @@ macro_rules! integer_unf {
                     if self.is_null(x) {
                         "null".to_string()
                     } else {
-                        exp_form(x)
+                        exp_form(self.value(x))
                     }
                 }))
             }
@@ -135,12 +135,10 @@ impl UNFVector for BooleanArray {
         Box::new((0..self.len()).map(move |x| {
             if self.is_null(x) {
                 "null".to_string()
+            } else if self.value(x) {
+                "1".to_string()
             } else {
-                if self.value(x) {
-                    "1".to_string()
-                } else {
-                    "0".to_string()
-                }
+                "0".to_string()
             }
         }))
     }

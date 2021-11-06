@@ -45,7 +45,7 @@ mod tests {
         // FIXME: Combining multiple batches is causing an issue.
         let reader = CSVReader::new(file_path.to_string(), 100, batch_size);
         let csv_schema = reader.schema.clone();
-        calculate_idhash(reader.into_iter(), csv_schema, config)
+        calculate_idhash(reader, csv_schema, config)
     }
 
     #[test]

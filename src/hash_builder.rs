@@ -5,7 +5,7 @@ use crate::{config::IdHashConfig, unf_vector::UNFVector};
 use arrow::{
     array::{
         BooleanArray, Float32Array, Float64Array, Int32Array, Int64Array, UInt16Array, UInt32Array,
-        UInt64Array,
+        UInt64Array, Utf8Array,
     },
     datatypes::Schema,
     record_batch::RecordBatch,
@@ -88,7 +88,7 @@ fn convert_col_to_raw<'a>(
         | arrow::datatypes::DataType::Timestamp(TimeUnit::Second, _) => col
             .downcast_ref::<Int64Array>()
             .expect("Failed to Downcast to Int64Array")
-            .raw(config.characters, config.digits),
+            .raw(12, config.digits),
         arrow::datatypes::DataType::Time32(_) => todo!(),
         arrow::datatypes::DataType::Time64(_) => todo!(),
         arrow::datatypes::DataType::Duration(_) => todo!(),
@@ -113,7 +113,10 @@ fn convert_col_to_raw<'a>(
             .downcast_ref::<Int64Array>()
             .expect("Failed to downcast Date to Int64")
             .raw(config.characters, config.digits),
-        arrow::datatypes::DataType::Utf8 => todo!(),
+        arrow::datatypes::DataType::Utf8 => col
+            .downcast_ref::<Utf8Array<i32>>()
+            .expect("Failed to downcast to Utf-8")
+            .raw(config.characters, config.digits),
         arrow::datatypes::DataType::LargeUtf8 => todo!(),
     }
 }

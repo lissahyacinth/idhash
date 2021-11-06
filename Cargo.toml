@@ -1,6 +1,6 @@
 [package]
 name = "idhash"
-version = "0.1.3"
+version = "0.1.4"
 edition = "2018"
 license = "MIT"
 authors = [
@@ -24,7 +24,7 @@ path = "src/main.rs"
 
 
 [dependencies]
-arrow = { git = "https://github.com/jorgecarleitao/arrow2", package = "arrow2", version = "0.6.2", default-features = false, features = ["csv", "io_csv_read"] }
+arrow = { git = "https://github.com/jorgecarleitao/arrow2", package = "arrow2", version = "0.7.0", default-features = false, features = ["csv", "io_csv_read"] }
 clap = "2.33.3"
 num = "0.4.0"
 num-traits = "0.2.14"

@@ -4,7 +4,7 @@ use std::sync::Arc;
 
 use arrow::datatypes::Schema;
 use arrow::io::csv::read::{
-    deserialize_batch, deserialize_column, infer, infer_schema, read_rows, ByteRecord,
+    deserialize_batch, deserialize_column, infer, infer_schema, ByteRecord,
 };
 use arrow::io::csv::read::{Reader, ReaderBuilder};
 use arrow::record_batch::RecordBatch;
@@ -62,7 +62,7 @@ impl Iterator for CSVReader {
         }
         self.line_number += row_count;
         match deserialize_batch(
-            &mut self.buffer[..row_count],
+            &self.buffer[..row_count],
             self.schema.fields(),
             None,
             self.line_number - row_count,
