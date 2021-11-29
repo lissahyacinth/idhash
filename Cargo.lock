@@ -13,9 +13,8 @@ dependencies = [
 
 [[package]]
 name = "arrow2"
-version = "0.7.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d873e2775c3d87a4e8d77aa544cbd43f34a0779d5164c59e7c6a1dd0678eb395"
+version = "0.8.1"
+source = "git+https://github.com/jorgecarleitao/arrow2#f2c7503bc171a4c75c0af9905823c8795bd17f9b"
 dependencies = [
  "chrono",
  "csv",
@@ -220,7 +219,7 @@ dependencies = [
 
 [[package]]
 name = "idhash"
-version = "0.1.5"
+version = "0.2.0"
 dependencies = [
  "arrow2",
  "clap",
