@@ -56,8 +56,8 @@ impl Deref for ThreadArrayChunk {
     }
 }
 
-impl AsRef<dyn Array> for ThreadArrayChunk {
-    fn as_ref(&self) -> &dyn Array {
+impl<'a> AsRef<dyn Array + 'a> for ThreadArrayChunk {
+    fn as_ref(&self) -> &(dyn Array + 'a) {
         &**self.array
     }
 }
@@ -65,6 +65,15 @@ impl AsRef<dyn Array> for ThreadArrayChunk {
 impl From<Arc<Box<dyn Array>>> for ThreadArrayChunk {
     fn from(item: Arc<Box<dyn Array>>) -> Self {
         ThreadArrayChunk { array: item }
+    }
+}
+
+impl From<Arc<Arc<dyn Array>>> for ThreadArrayChunk {
+    fn from(item: Arc<Arc<dyn Array>>) -> Self {
+        let boxed_item: Box<dyn Array> = item.to_boxed();
+        ThreadArrayChunk {
+            array: Arc::new(boxed_item),
+        }
     }
 }
 
