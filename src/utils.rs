@@ -1,13 +1,15 @@
 use std::fs::File;
 
+use std::ops::Deref;
 use std::sync::Arc;
 
+use arrow::array::Array;
+use arrow::chunk::Chunk;
 use arrow::datatypes::Schema;
 use arrow::io::csv::read::{
     deserialize_batch, deserialize_column, infer, infer_schema, ByteRecord,
 };
 use arrow::io::csv::read::{Reader, ReaderBuilder};
-use arrow::record_batch::RecordBatch;
 
 pub struct CSVReader {
     reader: Reader<File>,
@@ -25,9 +27,11 @@ impl CSVReader {
             .from_path(file_path)
             .unwrap();
 
-        let schema = Arc::new(
-            infer_schema(&mut reader, Some(lines_for_type_inference), true, &infer).unwrap(),
-        );
+        let schema = Arc::new(Schema::from(
+            infer_schema(&mut reader, Some(lines_for_type_inference), true, &infer)
+                .unwrap()
+                .0,
+        ));
 
         CSVReader {
             reader,
@@ -40,8 +44,32 @@ impl CSVReader {
     }
 }
 
+pub struct ThreadArrayChunk {
+    array: Arc<Box<dyn Array>>,
+}
+
+impl Deref for ThreadArrayChunk {
+    type Target = Arc<Box<dyn Array>>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.array
+    }
+}
+
+impl AsRef<dyn Array> for ThreadArrayChunk {
+    fn as_ref(&self) -> &dyn Array {
+        &**self.array
+    }
+}
+
+impl From<Arc<Box<dyn Array>>> for ThreadArrayChunk {
+    fn from(item: Arc<Box<dyn Array>>) -> Self {
+        ThreadArrayChunk { array: item }
+    }
+}
+
 impl Iterator for CSVReader {
-    type Item = RecordBatch;
+    type Item = Chunk<ThreadArrayChunk>;
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.exhausted {
@@ -63,12 +91,18 @@ impl Iterator for CSVReader {
         self.line_number += row_count;
         match deserialize_batch(
             &self.buffer[..row_count],
-            self.schema.fields(),
+            &self.schema.fields,
             None,
             self.line_number - row_count,
             deserialize_column,
         ) {
-            Ok(batch) => Some(batch),
+            Ok(chunk) => Some(Chunk::new(
+                chunk
+                    .into_arrays()
+                    .into_iter()
+                    .map(|x| ThreadArrayChunk::from(Arc::new(x)))
+                    .collect::<Vec<ThreadArrayChunk>>(),
+            )),
             Err(_) => panic!("Failed to Deserialize Batch"),
         }
     }

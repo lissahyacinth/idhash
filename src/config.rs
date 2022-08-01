@@ -38,7 +38,7 @@ impl IdHashConfigBuilder {
     pub fn build(&self) -> IdHashConfig {
         IdHashConfig {
             digits: if let Some(digits) = self.digits {
-                digits
+                digits as usize
             } else {
                 7
             },
@@ -58,7 +58,7 @@ impl IdHashConfigBuilder {
 
 #[derive(Clone, Copy, Debug)]
 pub struct IdHashConfig {
-    pub digits: u32,
+    pub digits: usize,
     pub truncation: usize,
     pub characters: usize,
 }

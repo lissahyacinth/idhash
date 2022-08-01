@@ -1,6 +1,6 @@
 [package]
 name = "idhash"
-version = "0.2.0"
+version = "0.3.0"
 edition = "2018"
 license = "MIT"
 authors = [
@@ -24,9 +24,19 @@ path = "src/main.rs"
 
 
 [dependencies]
-arrow = { git = "https://github.com/jorgecarleitao/arrow2", package = "arrow2", version = "0.8.0", default-features = false, features = ["csv", "io_csv_read"] }
+arrow = { git = "https://github.com/jorgecarleitao/arrow2", package = "arrow2", version = "0.12.0", default-features = false, features = ["csv", "io_csv_read"] }
 clap = "2.33.3"
 num = "0.4.0"
 num-traits = "0.2.14"
 fasthash = "0.4.0"
 rayon = "1.5.1"
+
+[dev-dependencies]
+criterion = "0.3"
+
+[[bench]]
+name = "benchmark_float_conversion"
+harness = false
+
+[profile.release]
+debug = true
